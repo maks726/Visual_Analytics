@@ -1,0 +1,20 @@
+# Customize YAML settings for html_output
+output:
+html_document:
+<toc: true
+toc_float: true
+theme: cosmo
+highlight: espresso
+fig_width: 7
+fig_height: 7
+fig_caption: true>
+#Customize YAML settings for pdf_document
+output:
+pdf_document:
+<toc: true
+toc_depth: 3
+highlight: monochrome
+fig_width: 7
+fig_height: 7
+fig_caption: true
+latex_engine: xelatex>
