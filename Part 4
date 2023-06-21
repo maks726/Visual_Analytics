@@ -1,0 +1,146 @@
+#Interactive visualizations
+#relation between number of cases and population. Visualize it for top 20 kommunes by cases, with beloning to fylke at the latest date per hundred people.
+#library(dplyr)
+#library(ggplot2)
+#library(ggiraph)
+cases <- data %>%filter(date == max(date))%>%
+  select(kommune_name, population, cases, fylke_name)%>%
+  arrange(desc(cases)) %>%slice(1:20)
+cases$population <- round(cases$population/100,1)
+cases$cases <- round(cases$cases/100,1)
+gg_cases <- ggplot(cases, aes(x = population, y = cases , color = fylke_name)) + 
+  geom_point_interactive(
+    aes(data_id = kommune_name, tooltip = kommune_name), size = 3 )  
+  
+ggiraph::girafe(ggobj = gg_cases, options = list(
+    opts_sizing(rescale = TRUE, width = .75) ))
+    
+   #mobility change at fylkes in different categories
+   google <- read_csv('https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/20_mobility/google/mobility.csv')
+#library(ggiraph)
+
+gg <- google%>%filter(date == max(date))
+
+my_gg <- ggplot(gg, aes( x = fylke_no, y = mob_change)) + geom_point_interactive(aes(tooltip = fylke_name), size = 2) + facet_wrap(~category)
+
+girafe(code = print(my_gg), options = list(
+    opts_sizing(rescale = TRUE, width = .75)))
+    
+    #analize how Covid-19 influenced top 10 Norway companies by revenue
+    #install.packages('dplyr')
+#library(dplyr)
+
+# order factor levels by men's income (plot_ly() will pick up on this ordering)
+rev <- read.csv("https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/30_economics/tax_administration/business_compensation_scheme.csv")
+rev <- na.omit(rev)
+
+rev <- rev%>%select(company_name, revenue_2020, revenue_2019)%>%
+  group_by(company_name)%>%
+  summarise(revenue_2020=max(revenue_2020),revenue_2019=max(revenue_2019))%>%
+  ungroup()%>%arrange(desc(revenue_2019))%>%slice(2:11)
+
+rev$revenue_2020 <- round(rev$revenue_2020/1000000,1)
+rev$revenue_2019 <- round(rev$revenue_2019/1000000,1)
+rev$company_name <- factor(rev$company_name, levels = rev$company_name[order(rev$revenue_2020)])
+#install.packages('plotly')
+#library(plotly)
+
+fig <- plot_ly(rev, color = I("gray80"))
+fig <- fig %>% 
+  add_segments(x = ~revenue_2019, xend = ~revenue_2020 , y = ~company_name, yend = ~company_name, showlegend = FALSE)
+fig <- fig %>% 
+  add_markers(x = ~revenue_2019, y = ~company_name, name = "Revenue_2019", color = I("pink"))
+fig <- fig %>%
+  add_markers(x = ~revenue_2020, y = ~company_name, name = "Revenue_2020", color = I("blue"))
+fig <- fig %>% layout(
+  title = "Covid_19 impact on top 10 Norway companies",
+  xaxis = list(title = "Revenue (in billions NOK)"),
+  yaxis = list(title = "Company"),
+  margin = list(l = 10)
+)
+
+fig
+
+#return to municipalities with highest percentage of cases per population and display how their percentage have increased over time in comparison to each other.
+top_three <- data %>%
+  group_by(kommune_name)%>%mutate(perc=cases/population*100)%>%summarise(max = max(perc))%>%
+  arrange(desc(max)) %>%slice(1:3)
+
+three <- data %>%
+  filter(kommune_name %in% top_three$kommune_name)%>%
+  mutate(perc=cases/population*100)%>%
+  select(date, kommune_name, perc )
+
+three <- split(three, three$kommune_name)
+three <- data.frame(three)
+three<-three%>%
+  select(Ullensaker.date,Lørenskog.perc,Rælingen.perc,Ullensaker.perc)
+
+
+graph <- plot_ly(three, x = ~Ullensaker.date)
+graph <- graph %>% add_lines(y = ~Ullensaker.perc, name = "Ullensaker")
+graph <- graph %>% add_lines(y = ~Lørenskog.perc, name = "Lørenskog")
+graph <- graph %>% add_lines(y = ~Rælingen.perc, name = "Rælingen")
+graph <- graph %>% layout(
+    title = "Number of COVID-19 cases in top 3 kommunes by cases",
+    xaxis = list(
+      title ="Date",
+      rangeselector = list(
+        buttons = list(
+          list(
+            count = 3,
+            label = "3 months",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 6,
+            label = "6 months",
+            step = "month",
+            stepmode = "backward"),
+          list(
+            count = 1,
+            label = "1 year",
+            step = "year",
+            stepmode = "backward"),
+          list(step = "all",
+               label = "All"))),
+      rangeslider = list(type = "date")),
+    yaxis = list(title = "Number of COVID-19 cases, per day"))
+
+graph
+
+#Show how percenge of cases per population changes in Møre og Romsdal, Viken and Oslo.
+library(gganimate)
+#install.packages("gifski")
+library(gifski)
+library(lubridate)
+per_th <- daily
+per_th <- mutate(per_th, date = as.Date(per_th$date))
+per_th <- per_th %>% mutate(date = cut.Date(date, breaks = "1 month", labels = FALSE))
+
+ggplot(per_th, aes(fylke_name, perc, size = perc, colour = kommune_name)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Month: {closest_state}') +
+  transition_states(date, transition_length = 100, state_length = 1) +
+  ease_aes('linear')
+  
+  #see relation between Covid-19 cases and deathes
+  death <- read_csv('https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/04_deaths/deaths_total_fhi.csv')
+death <- filter(death, date>"2020-03-25" )
+cas <- filter(data, date<"2021-02-11")%>%
+  group_by(date)%>%summarise(cases=sum(cases))%>%select(date,cases)
+
+dc <- merge(cas, death)
+dc <- mutate(dc, date = as.Date(dc$date))
+dc <- dc %>% mutate(date = cut.Date(date, breaks = "1 week", labels = FALSE))
+#library(gganimate)
+install.packages("gifski")
+#library(gifski)
+ggplot(dc, aes(cases, deaths, size = cases, colour = deaths)) +
+  geom_point(alpha = 0.7, show.legend = FALSE) +
+  labs(title = 'Week: {closest_state}') +
+  transition_states(date, transition_length = 1, state_length = 1) +
+  ease_aes('sine-in-out')
+  
+  
