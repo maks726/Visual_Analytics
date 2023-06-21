@@ -1,13 +1,13 @@
 # Visual_Analytics
 Project from Visual Analytics cource assignment
-Part1 - In this part, I am going to customize settings of ‘html_output’ and ‘pdf_output’ sections of YAML
+#Part1 - In this part, I am going to customize settings of ‘html_output’ and ‘pdf_output’ sections of YAML
 preamble of _HomeExam30_CandNo.Rmd template file to add a personal flavor and compile the document into
 popular output formats (e.g., ‘html_output’, ‘pdf_output’ and ‘slidy_presentation’) with a use of ‘Knit’
 command.  
 
-Part2 - In this part, I am going to demonstrate skills to present data in a visual form with ggplot2 library.
+#Part2 - In this part, I am going to demonstrate skills to present data in a visual form with ggplot2 library.
 
-Part3 - Writing a story about COVID-19
+#Part3 - Writing a story about COVID-19
 There are five components of Healthcare data that are tracked on daily basis (infected, admissions, in respirator, covid tests and covid death), three components of Economics data that are also tracked on daily basis (business compensation scheme, unemployment benefits and wage compensation) and Mobility data from apple and android mobile devices that are collected to reveal changes in mobility trends over the time affected by Covid-19.
 Story
 Question(s):
