@@ -1,0 +1,47 @@
+library(readr)
+data <- read_csv("https://raw.githubusercontent.com/thohan88/covid19-nor-data/master/data/01_infected/msis/municipality.csv")
+data <- data%>%mutate(date = as.Date(data$date))
+#View(data)
+#omit 0 from population to count percentage
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+install.packages("naniar")
+library(naniar)
+data <- data%>% replace_with_na(replace = list(population = 0))%>%
+  na.omit(data)
+
+#extracting the top 6 kommunes with the highest number of cases per population:
+top_covid <- data %>%filter(date > "2020-04-06")%>%
+  group_by(kommune_name)%>%mutate(perc=cases/population*100)%>%summarise(max = max(perc))%>%
+  arrange(desc(max)) %>%slice(1:6)
+
+# let's look at the table with cases per population:
+top_covid 
+
+# counting the number of cases per population in the top regions for each day:
+library(dplyr)
+daily <- data %>%
+  filter(kommune_name %in% top_covid$kommune_name, date > "2020-04-06")%>%
+  mutate(perc=cases/population*100)%>%
+  select(kommune_name, date, perc, fylke_name,cases, population)
+#View(daily)
+#find average value for each date
+av <-data %>%filter(date > 2020-04-06)%>% group_by(date)%>%
+  mutate(perc=mean(cases/population*100))%>%
+  select(date,perc)
+#View(average)
+# plotting the number of cases in top regions across the time:
+
+ggplot(daily, aes(x = date, y = perc, color = kommune_name))+
+  geom_line()+geom_area(alpha = 0.3)+ 
+  #geom_line(data = av, colour = "black")+
+  scale_x_date(name = "Date",
+               date_breaks = "8 months", labels = scales::label_date_short())+
+  scale_y_continuous(name = "Number of cases",
+                     breaks = seq(from = 0, to = 50, by = 5))+
+  labs(x = "Date", y = "Number of cases")+
+  facet_wrap(~kommune_name) +
+  theme_minimal () 
+  
+  
