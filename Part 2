@@ -1,20 +1,27 @@
+# Load dataset
 library(tidyverse)
 view(economics)
 
+#Make a plot, which is appropriate to visualize evolution in the number of unemployed
+#(column unemploy) versus time (column date)
 unemployed <- ggplot(data = economics, aes(date,unemploy))
 unemployed+geom_area(color="darkblue",
 fill="lightblue")+labs(x='time', y = 'number of unemployed')
 
+#Make a plot that can visualize the number of unemployed versus the personal savings rate (psavert)
 versus <- ggplot(data = economics, aes(psavert,unemploy,fill=date))
 versus+geom_point(shape = 21, size = 1.8, color = "white", stroke = 0.5)+labs(x='personal savings rate', y = 'number of unemployed')
 
+#Load data
 view(iris)
 summary(iris$Sepal.Length)
 
+#Make a custom histogram
 length <- ggplot(data = iris, aes(Sepal.Length))
 length + geom_histogram(binwidth=0.1, center = 0.05, color="darkblue",
 fill="lightblue") + labs(x = 'sepal length', y = 'number of flowers')
 
+#Working with panels
 species <- length + geom_histogram(binwidth=0.1, center = 0.05, color="darkblue",
 fill="lightblue") + labs(x = 'sepal length', y = 'number of flowers') + facet_wrap(~Species)
 species
@@ -24,18 +31,50 @@ cut <- price + geom_histogram(binwidth=1000, center = 500, color="darkblue",
 fill="lightblue") + labs(x = 'price', y = 'number of diamonds') + facet_wrap(~cut)
 cut
 
+#two strip charts of sepal length versus species with and without jitter
 sepal <- ggplot(data = iris, aes(Species, Sepal.Length))
 sepal + geom_point(color="darkblue") + labs(x ='species' , y = 'sepal length')
 
 sepal + geom_jitter(color="darkblue")+ labs(x ='species' , y = 'sepal length')
 
-view(mpg)
-ggplot(mpg, aes(model, manufacturer)) +
-geom_point()
+# a single chart with a number of boxplots to visualize distribution of athletes heights by sex and sport
+athl <- ggplot(data = athletes, aes(sport,ht,fill=sex))
+athl+geom_boxplot(color = "black")+labs(x='sport', y = 'athletes heights')
 
-mpg %>%
-transmute("mod_per_man" = paste(manufacturer, model, sep = " ")) %>%
-ggplot(aes(,mod_per_man)) + geom_bar(color="darkblue",
-fill="lightblue")+theme(axis.text.y = element_text(size=8)) +labs(x='quantity', y = 'models per manufacturers')
+#the same with ridgelines 
+library(ggridges)
+athl2 <- ggplot(data = athletes, aes(ht,sport,fill=sex))
+athl2+geom_density_ridges(alpha = 0.7)
+
+#Styling of plots 
+library("colorspace")
+library("cowplot")
+ggplot(mpg, aes(displ, cty, fill = class)) +
+geom_point(shape = 21, size = 2.5, color = "white", stroke = 0.5) +
+scale_x_log10(name = "engine displacement, in litres") +
+scale_y_continuous(name = "city miles per gallon") + theme_classic()+ scale_fill_discrete_qualitative(palette='Dark2')
+
+#Axis ticks and titles
+ggplot(mpg, aes(displ, cty, fill = class)) +
+geom_point(shape = 21, size = 2.5, color = "white", stroke = 0.5) +
+scale_x_log10(name = "engine displacement, in litres") +
+scale_y_continuous(name = "city miles per gallon") +
+theme_classic(12) +
+theme(axis.text.x = element_text(size=12,colour = 'black'),
+axis.text.y = element_text(size=12,colour = 'black'),
+panel.background = element_rect(fill='#F3F8FF'),
+legend.box.spacing = unit(0, 'cm'))
+
+# Building a heat map
+internet <- read.csv("/cloud/project/internet.csv")
+internet %>%
+ggplot(aes(year, country,fill=users))+geom_tile() + theme(panel.background = element_rect(fill='#F2F5FF'))
+
+#disign
+internet %>%
+ggplot(aes(year, reorder(country,users) ,fill=users))+geom_tile() + theme(panel.background = element_rect(fill='#F2F5FF')) 
+  + labs(x='year', y='country') + scale_fill_continuous_qualitative(palette='Dark2')
+
+
 
 
