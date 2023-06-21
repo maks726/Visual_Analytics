@@ -28,3 +28,14 @@ sepal <- ggplot(data = iris, aes(Species, Sepal.Length))
 sepal + geom_point(color="darkblue") + labs(x ='species' , y = 'sepal length')
 
 sepal + geom_jitter(color="darkblue")+ labs(x ='species' , y = 'sepal length')
+
+view(mpg)
+ggplot(mpg, aes(model, manufacturer)) +
+geom_point()
+
+mpg %>%
+transmute("mod_per_man" = paste(manufacturer, model, sep = " ")) %>%
+ggplot(aes(,mod_per_man)) + geom_bar(color="darkblue",
+fill="lightblue")+theme(axis.text.y = element_text(size=8)) +labs(x='quantity', y = 'models per manufacturers')
+
+
