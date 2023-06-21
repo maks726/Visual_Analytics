@@ -1,0 +1,30 @@
+library(tidyverse)
+view(economics)
+
+unemployed <- ggplot(data = economics, aes(date,unemploy))
+unemployed+geom_area(color="darkblue",
+fill="lightblue")+labs(x='time', y = 'number of unemployed')
+
+versus <- ggplot(data = economics, aes(psavert,unemploy,fill=date))
+versus+geom_point(shape = 21, size = 1.8, color = "white", stroke = 0.5)+labs(x='personal savings rate', y = 'number of unemployed')
+
+view(iris)
+summary(iris$Sepal.Length)
+
+length <- ggplot(data = iris, aes(Sepal.Length))
+length + geom_histogram(binwidth=0.1, center = 0.05, color="darkblue",
+fill="lightblue") + labs(x = 'sepal length', y = 'number of flowers')
+
+species <- length + geom_histogram(binwidth=0.1, center = 0.05, color="darkblue",
+fill="lightblue") + labs(x = 'sepal length', y = 'number of flowers') + facet_wrap(~Species)
+species
+
+price <- ggplot(data = diamonds, aes(price))
+cut <- price + geom_histogram(binwidth=1000, center = 500, color="darkblue",
+fill="lightblue") + labs(x = 'price', y = 'number of diamonds') + facet_wrap(~cut)
+cut
+
+sepal <- ggplot(data = iris, aes(Species, Sepal.Length))
+sepal + geom_point(color="darkblue") + labs(x ='species' , y = 'sepal length')
+
+sepal + geom_jitter(color="darkblue")+ labs(x ='species' , y = 'sepal length')
