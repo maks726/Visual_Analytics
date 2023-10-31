@@ -42,3 +42,5 @@ geom_line() to create a line plot of Covid-19 cases for each day and to add a li
 facet_wrap() to create scatter plot facets for each kommune
 
 Part4 - I were asked to analyze the data and visualize some findings presumably with the help of static ggplot2 plots using the available data published at Covid19data.no website. In this part, my task is to produce a number of interactive and dynamic visualizations. 
+
+In the Visual Analytics file you can find my other study project with code and visualizations.
